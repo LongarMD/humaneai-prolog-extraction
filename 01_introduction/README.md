@@ -1,6 +1,6 @@
 ### Source
 
-Image at https://d2l.ai/chapter_preface/index.html#content-and-structure
+https://d2l.ai/chapter_introduction/index.html
 
 ### Prompts
 
