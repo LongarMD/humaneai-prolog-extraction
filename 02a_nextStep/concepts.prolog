@@ -1,41 +1,59 @@
-% Define which section teaches which concept
-teaches(introduction, computer_programs_and_business_logic).
-teaches(introduction, limitations_of_traditional_programs).
-teaches(introduction, introduction_to_machine_learning).
-teaches(introduction, distinction_from_traditional_programming).
-teaches(introduction, definition_of_machine_learning).
-teaches(introduction, applications_of_machine_learning).
-teaches(preliminaries, tensor_operations).
-teaches(preliminaries, linear_algebra).
-teaches(preliminaries, calculus_basics).
-teaches(preliminaries, auto_diff).
-teaches(preliminaries, probability_basics).
-teaches(preliminaries, statistics_basics).
-teaches(preliminaries, gradient_descent).
-teaches(preliminaries, optimization).
-teaches(preliminaries, backpropagation).
-teaches(preliminaries, stochastic_models).
-teaches(preliminaries, data_preprocessing).
-teaches(preliminaries, matrix_multiplication).
-teaches(preliminaries, broadcasting).
-teaches(preliminaries, chain_rule).
-teaches(preliminaries, loss_function_optimization).
+% Define sections
+section(introduction).
+section(preliminaries).
+section(linear_neural_networks).
+section(multilayer_perceptrons).
+section(builders_guide).
+section(convolutional_neural_networks).
+section(modern_convolutional_neural_networks).
+section(recurrent_neural_networks).
+section(modern_recurrent_neural_networks).
+section(computer_vision).
+section(natural_language_processing).
+section(optimization_algorithms).
+section(computational_performance).
+section(attention_mechanisms_and_transformers).
 
-% Facts defining the direct prerequisites for each topic and concept
-hasPrerequisite(introduction, none).
-hasPrerequisite(preliminaries, introduction).
-hasPrerequisite(linear_neural_networks, preliminaries).
-hasPrerequisite(multilayer_perceptrons, linear_neural_networks).
-hasPrerequisite(builders_guide, multilayer_perceptrons).
-hasPrerequisite(convolutional_neural_networks, builders_guide).
-hasPrerequisite(modern_convolutional_neural_networks, convolutional_neural_networks).
-hasPrerequisite(recurrent_neural_networks, builders_guide).
-hasPrerequisite(modern_recurrent_neural_networks, recurrent_neural_networks).
-hasPrerequisite(computer_vision, modern_convolutional_neural_networks).
-hasPrerequisite(natural_language_processing, modern_recurrent_neural_networks).
-hasPrerequisite(optimization_algorithms, builders_guide).
-hasPrerequisite(computational_performance, optimization_algorithms).
-hasPrerequisite(attention_mechanisms_and_transformers, builders_guide).
+% Define which section teaches which concept
+teachesConcept(introduction, computer_programs_and_business_logic).
+teachesConcept(introduction, limitations_of_traditional_programs).
+teachesConcept(introduction, introduction_to_machine_learning).
+teachesConcept(introduction, distinction_from_traditional_programming).
+teachesConcept(introduction, definition_of_machine_learning).
+teachesConcept(introduction, applications_of_machine_learning).
+teachesConcept(preliminaries, tensor_operations).
+teachesConcept(preliminaries, linear_algebra).
+teachesConcept(preliminaries, calculus_basics).
+teachesConcept(preliminaries, auto_diff).
+teachesConcept(preliminaries, probability_basics).
+teachesConcept(preliminaries, statistics_basics).
+teachesConcept(preliminaries, gradient_descent).
+teachesConcept(preliminaries, optimization).
+teachesConcept(preliminaries, backpropagation).
+teachesConcept(preliminaries, stochastic_models).
+teachesConcept(preliminaries, data_preprocessing).
+teachesConcept(preliminaries, matrix_multiplication).
+teachesConcept(preliminaries, broadcasting).
+teachesConcept(preliminaries, chain_rule).
+teachesConcept(preliminaries, loss_function_optimization).
+
+% Define section prerequisites
+hasSectionPrerequisite(introduction, none).
+hasSectionPrerequisite(preliminaries, introduction).
+hasSectionPrerequisite(linear_neural_networks, preliminaries).
+hasSectionPrerequisite(multilayer_perceptrons, linear_neural_networks).
+hasSectionPrerequisite(builders_guide, multilayer_perceptrons).
+hasSectionPrerequisite(convolutional_neural_networks, builders_guide).
+hasSectionPrerequisite(modern_convolutional_neural_networks, convolutional_neural_networks).
+hasSectionPrerequisite(recurrent_neural_networks, builders_guide).
+hasSectionPrerequisite(modern_recurrent_neural_networks, recurrent_neural_networks).
+hasSectionPrerequisite(computer_vision, modern_convolutional_neural_networks).
+hasSectionPrerequisite(natural_language_processing, modern_recurrent_neural_networks).
+hasSectionPrerequisite(optimization_algorithms, builders_guide).
+hasSectionPrerequisite(computational_performance, optimization_algorithms).
+hasSectionPrerequisite(attention_mechanisms_and_transformers, builders_guide).
+
+% Facts defining the direct prerequisites for each concept
 hasPrerequisite(limitations_of_traditional_programs, computer_programs_and_business_logic).
 hasPrerequisite(introduction_to_machine_learning, limitations_of_traditional_programs).
 hasPrerequisite(distinction_from_traditional_programming, introduction_to_machine_learning).
@@ -56,57 +74,135 @@ hasPrerequisite(stochastic_models, statistics_basics).
 hasPrerequisite(gradient_descent, calculus_basics).
 hasPrerequisite(optimization, gradient_descent).
 
-% Rule defining if a student can learn a specific topic or concept based on prerequisites
-can_learn(Student, TopicOrConcept) :-
-    hasPrerequisite(TopicOrConcept, Prerequisite),
-    (Prerequisite == none ; learned(Student, Prerequisite)).
+% A student has learned a section if they have learned all concepts in that section
+hasLearnedSection(Student, Section) :-
+    section(Section),
+    not((
+        teachesConcept(Section, Concept),
+        not(hasLearnedConcept(Student, Concept))
+    )).
 
-% Rule to check if a student has learned all prerequisites for a topic or concept
-has_learned_all_prerequisites(Student, TopicOrConcept) :-
-    hasPrerequisite(TopicOrConcept, Prerequisite),
-    (Prerequisite == none ; (learned(Student, Prerequisite), has_learned_all_prerequisites(Student, Prerequisite))).
+% A student can learn a section if they have learned all dependent sections
+canLearnSection(Student, Section) :-
+    section(Section),
+    (
+        % Check if the section has a 'none' prerequisite directly
+        hasSectionPrerequisite(Section, none)
+        ;
+        % Check if all prerequisites are met
+        not((
+            hasSectionPrerequisite(Section, PrerequisiteSection),
+            PrerequisiteSection \= none,
+            not(hasLearnedSection(Student, PrerequisiteSection))
+        ))
+    ).
 
-% Rule to suggest the next topic or concept to learn based on current knowledge
-suggest_next_topic_or_concept(Student, NextTopicOrConcept) :-
-    not(learned(Student, NextTopicOrConcept)),
-    can_learn(Student, NextTopicOrConcept),
-    has_learned_all_prerequisites(Student, NextTopicOrConcept).
+% A student can learn a concept if they can learn the section that teaches it, and if they have learned all prerequisites
+canLearnConcept(Student, Concept) :-
+    teachesConcept(Section, Concept),
+    canLearnSection(Student, Section),
+    not(hasLearnedConcept(Student, Concept)),
+    not((
+        hasPrerequisite(Concept, PrerequisiteConcept),
+        not(hasLearnedConcept(Student, PrerequisiteConcept))
+    )).
 
-% Rule to check if a student has learned all concepts in a section
-has_learned_all_concepts(Student, Section) :-
-    not((teaches(Section, Concept), not(learned(Student, Concept)))).
+% A next step should be a learnable concept that will bring the student closer to their goal
+% If the goal is a section, the student needs to learn all prerequisite sections, and then all of the concepts in the section itself
+% If the goal is a concept, the student needs to learn all prerequisite sections, and then learn the prerequisite concepts in the section
+% Determine if all direct prerequisites of a concept have been learned by the student
 
-% Rule to find the next learning step towards the goal
-nextStep(Person, NextConcept) :-
-    hasGoal(Person, Goal),
-    teaches(Section, Goal), % The goal is a concept within a section
-    teaches(Section, NextConcept), % Find other concepts within the same section
-    not(learned(Person, NextConcept)), % The student has not learned this concept yet
-    can_learn(Person, NextConcept), % They can learn it based on prerequisites
-    has_learned_all_prerequisites(Person, NextConcept). % They have learned all prerequisites
+% Recursively find all prerequisites leading up to a concept.
+prerequisitePath(GoalConcept, Concept) :-
+    hasPrerequisite(GoalConcept, Concept).
+prerequisitePath(GoalConcept, Concept) :-
+    hasPrerequisite(GoalConcept, Intermediate),
+    prerequisitePath(Intermediate, Concept).
 
-% Alternative version if the goal itself is a concept
-nextStep(Person, NextConcept) :-
-    hasGoal(Person, Goal),
-    not(teaches(_, Goal)), % The goal itself is a concept, not part of a larger section
-    hasPrerequisite(Goal, NextConcept),
-    not(learned(Person, NextConcept)),
-    can_learn(Person, NextConcept),
-    has_learned_all_prerequisites(Person, NextConcept).
+% Check if all prerequisites for a concept have been learned by the student.
+allPrerequisitesLearned(Student, Concept) :-
+    not((hasPrerequisite(Concept, Prerequisite),
+         not(hasLearnedConcept(Student, Prerequisite)))).
 
-% Fact about students having learned certain topics and concepts
-learned(john, computer_programs_and_business_logic).
-learned(john, limitations_of_traditional_programs).
-learned(jane, introduction_to_machine_learning).
-learned(jane, distinction_from_traditional_programming).
+prerequisitesMet(Student, GoalConcept, Concept) :-
+    prerequisitePath(GoalConcept, Concept),
+    not(hasLearnedConcept(Student, Concept)),
+    allPrerequisitesLearned(Student, Concept).
 
-% Example usage of the rule to suggest the next topic or concept to learn
-% suggest_next_topic_or_concept(john, NextTopicOrConcept).
+% Recursively find all prerequisite sections leading up to a section.
+prerequisiteSectionPath(GoalSection, Section) :-
+    hasSectionPrerequisite(GoalSection, Section).
+prerequisiteSectionPath(GoalSection, Section) :-
+    hasSectionPrerequisite(GoalSection, Intermediate),
+    prerequisiteSectionPath(Intermediate, Section).
 
-% Example facts about students' goals
-hasGoal(john, machine_learning).
-hasGoal(jane, natural_language_processing).
+% Check if all prerequisite sections for a section have been learned by the student.
+allPrerequisitesSectionsLearned(Student, Section) :-
+    not((hasSectionPrerequisite(Section, Prerequisite),
+         Prerequisite \= none,
+         not(hasLearnedSection(Student, Prerequisite)))).
 
-% Example usage of the rule to suggest the next step towards a goal
-% nextStep(john, NextConcept).
-% nextStep(jane, NextConcept).
+prerequisitesSectionsMet(Student, GoalSection, Section) :-
+    prerequisiteSectionPath(GoalSection, Section),
+    not(hasLearnedSection(Student, Section)),
+    allPrerequisitesSectionsLearned(Student, Section).
+
+prerequisitesMet(Student, GoalConcept, Concept) :-
+    prerequisitePath(GoalConcept, Concept),
+    not(hasLearnedConcept(Student, Concept)),
+    allPrerequisitesLearned(Student, Concept).
+
+sectionPrerequisitesMet(Student, Section, GoalConcept, PrerequisiteSection) :-
+    hasSectionPrerequisite(Section, PrerequisiteSection),
+    PrerequisiteSection \= none,
+    not(hasLearnedSection(Student, PrerequisiteSection)),
+    teachesConcept(PrerequisiteSection, NecessaryConcept),
+    prerequisitePath(GoalConcept, NecessaryConcept),
+    not(hasLearnedConcept(Student, NecessaryConcept)),
+    PrerequisiteSection = Section.
+
+% Identifies the next learnable section for the student based on the direct and indirect prerequisites
+% required for reaching the goal section, ensuring uniqueness in suggestions.
+nextStep(Student, NextSection) :-
+    hasGoal(Student, GoalSection),
+    section(GoalSection),
+    setof(Section, prerequisitesSectionsMet(Student, GoalSection, Section), UniqueSections),
+    member(NextSection, UniqueSections).
+
+% Once all prerequisite sections are learned, suggest concepts within the goal section that have not been learned.
+nextStep(Student, NextConcept) :-
+    hasGoal(Student, GoalSection),
+    section(GoalSection),
+    allPrerequisitesSectionsLearned(Student, GoalSection),
+    teachesConcept(GoalSection, NextConcept),
+    not(hasLearnedConcept(Student, NextConcept)),
+    allPrerequisitesLearned(Student, NextConcept).
+
+% For concept goals, the previous logic remains, using the updated concept helper predicates for uniqueness.
+nextStep(Student, NextConcept) :-
+    hasGoal(Student, GoalConcept),
+    not(section(GoalConcept)),  % Ensures the goal is not a section
+    setof(Concept, prerequisitesMet(Student, GoalConcept, Concept), UniqueConcepts),
+    member(NextConcept, UniqueConcepts).
+
+% Optionally, consider the prerequisites of the section if the goal concept's prerequisites are satisfied
+nextStep(Student, NextSection) :-
+    hasGoal(Student, GoalConcept),
+    not(section(GoalConcept)),  % Ensures the goal is not a section
+    teachesConcept(Section, GoalConcept),
+    setof(SectionConcept,
+          sectionPrerequisitesMet(Student, Section, GoalConcept, SectionConcept),
+          UniqueSections),
+    member(NextSection, UniqueSections).
+
+% =================== Example data ===================
+
+student(john).
+hasGoal(john, loss_function_optimization).
+hasLearnedConcept(john, computer_programs_and_business_logic).
+hasLearnedConcept(john, limitations_of_traditional_programs).
+hasLearnedConcept(john, introduction_to_machine_learning).
+hasLearnedConcept(john, distinction_from_traditional_programming).
+hasLearnedConcept(john, definition_of_machine_learning).
+hasLearnedConcept(john, applications_of_machine_learning).
+hasLearnedConcept(john, calculus_basics).
