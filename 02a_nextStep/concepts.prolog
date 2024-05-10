@@ -129,28 +129,21 @@ prerequisitesMet(Student, GoalConcept, Concept) :-
     not(hasLearnedConcept(Student, Concept)),
     allPrerequisitesLearned(Student, Concept).
 
-% Recursively find all prerequisite sections leading up to a section.
-prerequisiteSectionPath(GoalSection, Section) :-
-    hasSectionPrerequisite(GoalSection, Section).
-prerequisiteSectionPath(GoalSection, Section) :-
-    hasSectionPrerequisite(GoalSection, Intermediate),
-    prerequisiteSectionPath(Intermediate, Section).
+% Identifies the next learnable concept for the student based on the direct and indirect prerequisites
+% required for reaching the goal concept, ensuring uniqueness in suggestions.
+nextStep(Student, NextConcept) :-
+    hasGoal(Student, GoalConcept),
+    setof(Concept, prerequisitesMet(Student, GoalConcept, Concept), UniqueConcepts),
+    member(NextConcept, UniqueConcepts).
 
-% Check if all prerequisite sections for a section have been learned by the student.
-allPrerequisitesSectionsLearned(Student, Section) :-
-    not((hasSectionPrerequisite(Section, Prerequisite),
-         Prerequisite \= none,
-         not(hasLearnedSection(Student, Prerequisite)))).
-
-prerequisitesSectionsMet(Student, GoalSection, Section) :-
-    prerequisiteSectionPath(GoalSection, Section),
-    not(hasLearnedSection(Student, Section)),
-    allPrerequisitesSectionsLearned(Student, Section).
-
-prerequisitesMet(Student, GoalConcept, Concept) :-
-    prerequisitePath(GoalConcept, Concept),
-    not(hasLearnedConcept(Student, Concept)),
-    allPrerequisitesLearned(Student, Concept).
+% Optionally, consider the prerequisites of the section if the goal concept's prerequisites are satisfied
+nextStep(Student, NextSection) :-
+    hasGoal(Student, GoalConcept),
+    teachesConcept(Section, GoalConcept),
+    setof(SectionConcept,
+          sectionPrerequisitesMet(Student, Section, GoalConcept, SectionConcept),
+          UniqueSections),
+    member(NextSection, UniqueSections).
 
 sectionPrerequisitesMet(Student, Section, GoalConcept, PrerequisiteSection) :-
     hasSectionPrerequisite(Section, PrerequisiteSection),
@@ -160,40 +153,6 @@ sectionPrerequisitesMet(Student, Section, GoalConcept, PrerequisiteSection) :-
     prerequisitePath(GoalConcept, NecessaryConcept),
     not(hasLearnedConcept(Student, NecessaryConcept)),
     PrerequisiteSection = Section.
-
-% Identifies the next learnable section for the student based on the direct and indirect prerequisites
-% required for reaching the goal section, ensuring uniqueness in suggestions.
-nextStep(Student, NextSection) :-
-    hasGoal(Student, GoalSection),
-    section(GoalSection),
-    setof(Section, prerequisitesSectionsMet(Student, GoalSection, Section), UniqueSections),
-    member(NextSection, UniqueSections).
-
-% Once all prerequisite sections are learned, suggest concepts within the goal section that have not been learned.
-nextStep(Student, NextConcept) :-
-    hasGoal(Student, GoalSection),
-    section(GoalSection),
-    allPrerequisitesSectionsLearned(Student, GoalSection),
-    teachesConcept(GoalSection, NextConcept),
-    not(hasLearnedConcept(Student, NextConcept)),
-    allPrerequisitesLearned(Student, NextConcept).
-
-% For concept goals, the previous logic remains, using the updated concept helper predicates for uniqueness.
-nextStep(Student, NextConcept) :-
-    hasGoal(Student, GoalConcept),
-    not(section(GoalConcept)),  % Ensures the goal is not a section
-    setof(Concept, prerequisitesMet(Student, GoalConcept, Concept), UniqueConcepts),
-    member(NextConcept, UniqueConcepts).
-
-% Optionally, consider the prerequisites of the section if the goal concept's prerequisites are satisfied
-nextStep(Student, NextSection) :-
-    hasGoal(Student, GoalConcept),
-    not(section(GoalConcept)),  % Ensures the goal is not a section
-    teachesConcept(Section, GoalConcept),
-    setof(SectionConcept,
-          sectionPrerequisitesMet(Student, Section, GoalConcept, SectionConcept),
-          UniqueSections),
-    member(NextSection, UniqueSections).
 
 % =================== Example data ===================
 
