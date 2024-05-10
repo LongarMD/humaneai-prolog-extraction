@@ -1,0 +1,107 @@
+digraph EducationalGraph {
+    // Define node styles for sections and concepts
+    node [shape=box, style=filled, color=lightgrey];
+    // Sections
+    introduction;
+    preliminaries;
+    linear_neural_networks_regression;
+    linear_neural_networks_classification;
+    multilayer_perceptrons;
+    builders_guide;
+    convolutional_neural_networks;
+    modern_convolutional_neural_networks;
+    recurrent_neural_networks;
+    modern_recurrent_neural_networks;
+    computer_vision;
+    natural_language_processing;
+    optimization_algorithms;
+    computational_performance;
+    attention_mechanisms_and_transformers;
+
+    // Define nodes for concepts
+    node [shape=ellipse, style=filled, color=lightblue];
+    computer_programs_and_business_logic;
+    limitations_of_traditional_programs;
+    introduction_to_machine_learning;
+    distinction_from_traditional_programming;
+    definition_of_machine_learning;
+    applications_of_machine_learning;
+    tensor_operations;
+    linear_algebra;
+    calculus_basics;
+    auto_diff;
+    probability_basics;
+    statistics_basics;
+    gradient_descent;
+    optimization;
+    backpropagation;
+    stochastic_models;
+    data_preprocessing;
+    matrix_multiplication;
+    broadcasting;
+    chain_rule;
+    loss_function_optimization;
+
+    // Define edges for section prerequisites (red)
+    edge [color=black];
+    introduction -> preliminaries;
+    preliminaries -> linear_neural_networks_regression;
+    linear_neural_networks_regression -> linear_neural_networks_classification;
+    linear_neural_networks_classification -> multilayer_perceptrons;
+    multilayer_perceptrons -> builders_guide;
+    builders_guide -> convolutional_neural_networks;
+    convolutional_neural_networks -> modern_convolutional_neural_networks;
+    builders_guide -> recurrent_neural_networks;
+    recurrent_neural_networks -> modern_recurrent_neural_networks;
+    modern_convolutional_neural_networks -> computer_vision;
+    modern_recurrent_neural_networks -> natural_language_processing;
+    builders_guide -> optimization_algorithms;
+    optimization_algorithms -> computational_performance;
+    builders_guide -> attention_mechanisms_and_transformers;
+
+    // Define edges for teachesConcept (blue)
+    edge [color=blue];
+    introduction -> computer_programs_and_business_logic;
+    introduction -> limitations_of_traditional_programs;
+    introduction -> introduction_to_machine_learning;
+    introduction -> distinction_from_traditional_programming;
+    introduction -> definition_of_machine_learning;
+    introduction -> applications_of_machine_learning;
+    preliminaries -> tensor_operations;
+    preliminaries -> linear_algebra;
+    preliminaries -> calculus_basics;
+    preliminaries -> auto_diff;
+    preliminaries -> probability_basics;
+    preliminaries -> statistics_basics;
+    preliminaries -> gradient_descent;
+    preliminaries -> optimization;
+    preliminaries -> backpropagation;
+    preliminaries -> stochastic_models;
+    preliminaries -> data_preprocessing;
+    preliminaries -> matrix_multiplication;
+    preliminaries -> broadcasting;
+    preliminaries -> chain_rule;
+    preliminaries -> loss_function_optimization;
+
+    // Define edges for concept prerequisites (green)
+    edge [color=red];
+    computer_programs_and_business_logic -> limitations_of_traditional_programs;
+    limitations_of_traditional_programs -> introduction_to_machine_learning;
+    introduction_to_machine_learning -> distinction_from_traditional_programming;
+    distinction_from_traditional_programming -> definition_of_machine_learning;
+    definition_of_machine_learning -> applications_of_machine_learning;
+    linear_algebra -> tensor_operations;
+    linear_algebra -> matrix_multiplication;
+    tensor_operations -> data_preprocessing;
+    tensor_operations -> broadcasting;
+    calculus_basics -> chain_rule;
+    chain_rule -> backpropagation;
+    auto_diff -> backpropagation;
+    backpropagation -> loss_function_optimization;
+    auto_diff -> loss_function_optimization;
+    optimization -> loss_function_optimization;
+    probability_basics -> statistics_basics;
+    statistics_basics -> stochastic_models;
+    calculus_basics -> gradient_descent;
+    gradient_descent -> optimization;
+}
